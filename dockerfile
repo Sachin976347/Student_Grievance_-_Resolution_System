@@ -1,14 +1,11 @@
-# Use Java image
-FROM openjdk:17-jdk-slim
+FROM openjdk:17-jdk
 
-# Copy project files
-COPY . /app
-
-# Set working directory
 WORKDIR /app
 
-# Build project
-RUN ./mvnw clean package || mvn clean package
+COPY . .
 
-# Run jar file
+RUN apt-get update && apt-get install -y maven
+
+RUN mvn clean package
+
 CMD ["java", "-jar", "target/*.jar"]
