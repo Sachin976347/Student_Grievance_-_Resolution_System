@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="container mt-4">
+  <h3>Admin Grievance Panel</h3>
+
+
+
+<table class="table table-bordered">
+  <thead class="table-dark">
+    <tr>
+      <th>ID</th>
+      <th>Student</th>
+      <th>Description</th>
+      <th>Status</th>
+      <th>Resolution</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody id="data"></tbody>
+</table>
+
+
+<script>
+function load() {
+  fetch("/api/grievances")
+    .then(r => r.json())
+    .then(d => {
+      data.innerHTML = "";
+      d.forEach(g => {
+        data.innerHTML += `
+        <tr>
+          <td>${g.id}</td>
+          <td>${g.studentName}</td>
+          <td>${g.description}</td>
+          <td>
+            <select onchange="update(${g.id}, this.value)">
+              <option ${g.status=="PENDING"?"selected":""}>PENDING</option>
+              <option ${g.status=="IN_PROGRESS"?"selected":""}>IN_PROGRESS</option>
+              <option ${g.status=="RESOLVED"?"selected":""}>RESOLVED</option>
+            </select>
+          </td>
+          <td><input id="r${g.id}" value="${g.resolution || ""}"></td>
+          <td>
+            <button class="btn btn-success btn-sm" onclick="save(${g.id})">Save</button>
+            <button class="btn btn-danger btn-sm" onclick="del(${g.id})">Delete</button>
+          </td>
+        </tr>`;
+      });
+    });
+}
+
+function update(id, status) {
+  fetch(`/api/grievances/${id}?status=${status}`, { method:"PUT" })
+    .then(load);
+}
+
+function save(id) {
+  let res = document.getElementById(`r${id}`).value;
+  fetch(`/api/grievances/${id}?status=RESOLVED&resolution=${res}`, { method:"PUT" })
+    .then(load);
+}
+
+function del(id) {
+  if(confirm("Delete grievance?"))
+    fetch(`/api/grievances/${id}`, { method:"DELETE" }).then(load);
+}
+
+load();
+</script>
+</body>
+</html>

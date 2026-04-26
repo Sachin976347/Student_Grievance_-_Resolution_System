@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Student Grievance System</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Syne:wght@600;700&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="/style.css"/>
+</head>
+<body>
+
+<!-- AUTH SCREENS -->
+<div class="auth-shell" id="authShell">
+
+  <div class="auth-card" id="loginCard">
+    <div class="auth-logo">
+      <div class="auth-logo-box"><svg viewBox="0 0 16 16"><path d="M8 1L1 4v4c0 3.4 2.6 5.9 7 6.9 4.4-1 7-3.5 7-6.9V4L8 1z"/></svg></div>
+      <span>Grievance Hub</span>
+    </div>
+    <div class="auth-title">Welcome back</div>
+    <div class="auth-sub">Sign in to access your account</div>
+    <div class="err-msg" id="loginErr"></div>
+    <div class="auth-form">
+      <div class="field"><label>Username</label><input id="l-user" type="text" placeholder="Enter username" autocomplete="username"/></div>
+      <div class="field"><label>Password</label><input id="l-pass" type="password" placeholder="Enter password" autocomplete="current-password"/></div>
+      <button class="btn btn-primary" onclick="doLogin()">Sign In</button>
+    </div>
+    <div class="auth-switch">No account? <a onclick="showRegister()">Register here</a></div>
+    <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--bdr);font-size:11.5px;color:var(--text-sec);text-align:center">
+      Demo admin &rarr; <strong>admin / admin123</strong>
+    </div>
+  </div>
+
+  <div class="auth-card" id="registerCard" style="display:none">
+    <div class="auth-logo">
+      <div class="auth-logo-box"><svg viewBox="0 0 16 16"><path d="M8 1L1 4v4c0 3.4 2.6 5.9 7 6.9 4.4-1 7-3.5 7-6.9V4L8 1z"/></svg></div>
+      <span>Grievance Hub</span>
+    </div>
+    <div class="auth-title">Create account</div>
+    <div class="auth-sub">Register as a student</div>
+    <div class="err-msg" id="regErr"></div>
+    <div class="auth-form">
+      <div class="form-grid" style="grid-template-columns:1fr 1fr">
+        <div class="field"><label>Full Name</label><input id="r-name" type="text" placeholder="Your full name"/></div>
+        <div class="field"><label>Username *</label><input id="r-user" type="text" placeholder="Choose username"/></div>
+      </div>
+      <div class="field"><label>Email *</label><input id="r-email" type="email" placeholder="your@email.com"/></div>
+      <div class="field"><label>Password *</label><input id="r-pass" type="password" placeholder="Min 6 characters"/></div>
+      <button class="btn btn-primary" onclick="doRegister()">Create Account</button>
+    </div>
+    <div class="auth-switch">Have an account? <a onclick="showLogin()">Sign in</a></div>
+  </div>
+
+</div>
+
+<!-- APP SHELL -->
+<div class="app-shell" id="appShell" style="display:none">
+
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-box"><svg viewBox="0 0 16 16"><path d="M8 1L1 4v4c0 3.4 2.6 5.9 7 6.9 4.4-1 7-3.5 7-6.9V4L8 1z"/></svg></div>
+      Grievance Hub
+    </div>
+
+    <div id="adminNav">
+      <div class="nav-sec-label">Admin</div>
+      <div class="nav-item active" onclick="navigate('dashboard',this)">
+        <svg viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="1" width="6" height="6" rx="1.5"/><rect x="9" y="1" width="6" height="6" rx="1.5"/><rect x="1" y="9" width="6" height="6" rx="1.5"/><rect x="9" y="9" width="6" height="6" rx="1.5"/></svg>Dashboard
+      </div>
+      <div class="nav-item" onclick="navigate('all',this)">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 4h12M2 7h12M2 10h8M2 13h5"/></svg>All Grievances
+      </div>
+      <div class="nav-item" onclick="navigate('pending',this)">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="8" cy="8" r="7"/><path d="M8 4.5V8l2.5 1.5"/></svg>Pending
+      </div>
+      <div class="nav-item" onclick="navigate('overdue',this)">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="8" cy="8" r="7"/><path d="M8 5v4M8 11v.5" stroke-linecap="round"/></svg>Overdue
+      </div>
+      <div class="nav-item" onclick="navigate('resolved',this)">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="8" cy="8" r="7"/><path d="M5 8.5l2 2 4-4"/></svg>Resolved
+      </div>
+      <div class="nav-sec-label">Analytics</div>
+      <div class="nav-item" onclick="navigate('reports',this)">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2" y="2" width="12" height="12" rx="2"/><path d="M5 10V8M8 10V6M11 10V4"/></svg>Reports
+      </div>
+    </div>
+
+    <div id="studentNav" style="display:none">
+      <div class="nav-sec-label">Student</div>
+      <div class="nav-item active" onclick="navigate('myDash',this)">
+        <svg viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="1" width="6" height="6" rx="1.5"/><rect x="9" y="1" width="6" height="6" rx="1.5"/><rect x="1" y="9" width="6" height="6" rx="1.5"/><rect x="9" y="9" width="6" height="6" rx="1.5"/></svg>My Dashboard
+      </div>
+      <div class="nav-item" onclick="navigate('mine',this)">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 4h12M2 7h12M2 10h8M2 13h5"/></svg>My Grievances
+      </div>
+      <div class="nav-item" onclick="navigate('submit',this)">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="8" cy="8" r="7"/><path d="M8 5v6M5 8h6"/></svg>Submit Grievance
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="avatar" id="sideAvatar">?</div>
+        <div class="user-meta">
+          <div class="user-name" id="sideName">—</div>
+          <div class="user-role" id="sideRole">—</div>
+        </div>
+      </div>
+      <button class="logout-btn" onclick="doLogout()">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M6 2H2v12h4M11 5l3 3-3 3M7 8h7"/></svg>
+        Sign Out
+      </button>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="page-title" id="pageTitle">Dashboard</div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span class="role-badge" id="topRoleBadge"></span>
+        <div class="avatar" id="topAvatar">?</div>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- ADMIN: Dashboard -->
+      <div class="view active" id="view-dashboard">
+        <div class="metrics">
+          <div class="m-card"><div class="m-label">Total</div><div class="m-value" id="a-total">—</div><span class="chip chip-blue">All time</span></div>
+          <div class="m-card"><div class="m-label">Pending</div><div class="m-value" id="a-pending">—</div><span class="chip chip-yellow">Open + In Progress</span></div>
+          <div class="m-card"><div class="m-label">Resolved</div><div class="m-value" id="a-resolved">—</div><span class="chip chip-green" id="a-rate">—</span></div>
+          <div class="m-card"><div class="m-label">Overdue</div><div class="m-value" id="a-overdue" style="color:var(--dan)">—</div><span class="chip chip-red">SLA breached</span></div>
+          <div class="m-card"><div class="m-label">High Priority</div><div class="m-value" id="a-high">—</div><span class="chip chip-red">Urgent</span></div>
+        </div>
+        <div class="dash-row">
+          <div class="card">
+            <div class="card-head">
+              <div class="card-title">Recent Grievances</div>
+              <span class="card-link" onclick="navigate('all',document.querySelectorAll('#adminNav .nav-item')[1])">View all &rarr;</span>
+            </div>
+            <div class="tbl-wrap"><table><thead><tr><th>ID</th><th>Student</th><th>Category</th><th>Status</th><th>Priority</th><th>Due Date</th><th></th></tr></thead><tbody id="dash-tbody"></tbody></table></div>
+          </div>
+          <div class="card">
+            <div class="card-head"><div class="card-title">By Category</div></div>
+            <div class="cat-wrap">
+              <div class="cat-chart"><svg id="donutA" width="130" height="130" viewBox="0 0 130 130"></svg></div>
+              <div class="legend" id="cat-legend-a"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ADMIN: All Grievances -->
+      <div class="view" id="view-all">
+        <div class="action-row">
+          <div class="filters">
+            <button class="filter-btn active" onclick="filterAll('all',this)">All</button>
+            <button class="filter-btn" onclick="filterAll('Open',this)">Open</button>
+            <button class="filter-btn" onclick="filterAll('In Progress',this)">In Progress</button>
+            <button class="filter-btn" onclick="filterAll('Resolved',this)">Resolved</button>
+            <button class="filter-btn" onclick="filterAll('Closed',this)">Closed</button>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="navigate('submit',null)">+ New</button>
+        </div>
+        <div class="card"><div class="tbl-wrap">
+          <table><thead><tr><th>ID</th><th>Student</th><th>Category</th><th>Status</th><th>Priority</th><th>Due</th><th>File</th><th>Submitted</th><th>Actions</th></tr></thead><tbody id="all-tbody"></tbody></table>
+        </div></div>
+      </div>
+
+      <!-- ADMIN: Pending -->
+      <div class="view" id="view-pending">
+        <div class="card">
+          <div class="card-head"><div class="card-title">Pending — ordered by priority</div></div>
+          <div class="tbl-wrap"><table><thead><tr><th>ID</th><th>Student</th><th>Category</th><th>Status</th><th>Priority</th><th>Due Date</th><th>Actions</th></tr></thead><tbody id="pending-tbody"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- ADMIN: Overdue -->
+      <div class="view" id="view-overdue">
+        <div class="warn-banner">
+          <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1L1 14h14L8 1zm0 4v5M8 11v1"/></svg>
+          These grievances have exceeded their SLA deadline and require immediate attention.
+        </div>
+        <div class="card">
+          <div class="card-head"><div class="card-title">Overdue Grievances</div></div>
+          <div class="tbl-wrap"><table><thead><tr><th>ID</th><th>Student</th><th>Category</th><th>Priority</th><th>Due Date</th><th>Assigned To</th><th>Actions</th></tr></thead><tbody id="overdue-tbody"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- ADMIN: Resolved -->
+      <div class="view" id="view-resolved">
+        <div class="card">
+          <div class="card-head"><div class="card-title">Resolved Grievances</div></div>
+          <div class="tbl-wrap"><table><thead><tr><th>ID</th><th>Student</th><th>Category</th><th>Priority</th><th>Submitted</th><th>Resolved</th><th>Remarks</th></tr></thead><tbody id="resolved-tbody"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- ADMIN: Reports -->
+      <div class="view" id="view-reports">
+        <div class="metrics" style="grid-template-columns:repeat(4,1fr)">
+          <div class="m-card"><div class="m-label">Total</div><div class="m-value" id="r-total">—</div><span class="chip chip-blue">All grievances</span></div>
+          <div class="m-card"><div class="m-label">Resolution Rate</div><div class="m-value" id="r-rate">—</div><span class="chip chip-green">Percentage</span></div>
+          <div class="m-card"><div class="m-label">Overdue</div><div class="m-value" id="r-overdue" style="color:var(--dan)">—</div><span class="chip chip-red">SLA breached</span></div>
+          <div class="m-card"><div class="m-label">High Priority</div><div class="m-value" id="r-high">—</div><span class="chip chip-red">Urgent</span></div>
+        </div>
+        <div class="two-col">
+          <div class="card"><div class="card-head"><div class="card-title">Monthly submissions (last 6 months)</div></div><div class="chart-wrap"><canvas id="monthlyChart"></canvas></div></div>
+          <div class="card"><div class="card-head"><div class="card-title">Avg resolution time (days)</div></div><div class="chart-wrap"><canvas id="resolutionChart"></canvas></div></div>
+        </div>
+        <div class="two-col">
+          <div class="card">
+            <div class="card-head"><div class="card-title">Authority performance</div></div>
+            <div class="tbl-wrap"><table><thead><tr><th>Authority</th><th>Assigned</th><th>Resolved</th><th>Rate</th></tr></thead><tbody id="authority-tbody"></tbody></table></div>
+          </div>
+          <div class="card">
+            <div class="card-head"><div class="card-title">Overdue grievances</div></div>
+            <div class="tbl-wrap"><table><thead><tr><th>ID</th><th>Student</th><th>Category</th><th>Due Date</th></tr></thead><tbody id="rep-overdue-tbody"></tbody></table></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STUDENT ONLY: Submit Grievance -->
+      <div class="view" id="view-submit">
+
+        <!-- Access denied — shown only if admin somehow reaches this view -->
+        <div class="warn-banner" id="submit-admin-block" style="display:none">
+          <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1L1 14h14L8 1zm0 4v5M8 11v1"/></svg>
+          Administrators cannot submit grievances. Only registered students can submit complaints.
+        </div>
+
+        <!-- Form — shown only to students -->
+        <div class="card" style="max-width:800px" id="submit-form-card">
+          <div class="card-head"><div class="card-title">Submit New Grievance</div></div>
+          <div class="form-wrap">
+            <div class="form-grid">
+              <div class="field"><label>Student Name *</label><input id="f-name" type="text" placeholder="Full name"/></div>
+              <div class="field"><label>Student ID *</label><input id="f-sid" type="text" placeholder="e.g. STU-20241"/></div>
+              <div class="field"><label>Email Address</label><input id="f-email" type="email" placeholder="student@college.edu"/></div>
+            </div>
+            <div class="field"><label>Description *</label><textarea id="f-desc" placeholder="Describe your grievance clearly and in detail..."></textarea></div>
+            <div class="form-grid-2">
+              <div style="display:flex;flex-direction:column;gap:12px">
+                <div class="field"><label>Category *</label>
+                  <select id="f-cat">
+                    <option value="">Select category</option>
+                    <option>Academic</option><option>Hostel</option><option>Fees</option>
+                    <option>Infrastructure</option><option>Library</option><option>Harassment</option><option>Other</option>
+                  </select>
+                </div>
+                <div class="field"><label>Priority *</label>
+                  <select id="f-pri"><option value="Low">Low</option><option value="Medium">Medium</option><option value="High">High</option></select>
+                </div>
+              </div>
+              <div class="field">
+                <label>Supporting Document</label>
+                <input id="f-file" type="file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"/>
+                <div style="font-size:11.5px;color:var(--text-sec);margin-top:4px">Optional — PDF, Image or Word, max 10 MB</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:10px;align-items:center">
+              <button class="btn btn-primary" style="width:auto" onclick="submitGrievance()">Submit Grievance</button>
+              <button class="btn btn-ghost" onclick="clearForm()">Clear</button>
+              <span id="submit-loading" style="font-size:12.5px;color:var(--text-sec);display:none">Submitting...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STUDENT: My Dashboard -->
+      <div class="view" id="view-myDash">
+        <div class="info-banner">
+          <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="7"/><path d="M8 7v5M8 5v.5" stroke="white" stroke-width="1.4" fill="none"/></svg>
+          You are logged in as a student. Submit grievances and track their real-time status below.
+          Only administrators can edit or delete grievances.
+        </div>
+        <div class="metrics" style="grid-template-columns:repeat(4,1fr)">
+          <div class="m-card"><div class="m-label">My Total</div><div class="m-value" id="s-total">—</div><span class="chip chip-blue">Submitted</span></div>
+          <div class="m-card"><div class="m-label">Open</div><div class="m-value" id="s-open">—</div><span class="chip chip-yellow">Awaiting</span></div>
+          <div class="m-card"><div class="m-label">In Progress</div><div class="m-value" id="s-prog">—</div><span class="chip chip-blue">Being addressed</span></div>
+          <div class="m-card"><div class="m-label">Resolved</div><div class="m-value" id="s-res">—</div><span class="chip chip-green">Completed</span></div>
+        </div>
+        <div class="dash-row">
+          <div class="card">
+            <div class="card-head">
+              <div class="card-title">My Recent Grievances</div>
+              <span class="card-link" onclick="navigate('mine',document.querySelectorAll('#studentNav .nav-item')[1])">View all &rarr;</span>
+            </div>
+            <div class="tbl-wrap"><table><thead><tr><th>ID</th><th>Category</th><th>Status</th><th>Priority</th><th>Due Date</th><th>Submitted</th></tr></thead><tbody id="my-dash-tbody"></tbody></table></div>
+          </div>
+          <div class="card">
+            <div class="card-head"><div class="card-title">By Category</div></div>
+            <div class="cat-wrap">
+              <div class="cat-chart"><svg id="donutS" width="130" height="130" viewBox="0 0 130 130"></svg></div>
+              <div class="legend" id="cat-legend-s"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STUDENT: My Grievances -->
+      <div class="view" id="view-mine">
+        <div class="info-banner">
+          <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="7"/><path d="M8 7v5M8 5v.5" stroke="white" stroke-width="1.4" fill="none"/></svg>
+          View-only — administrators manage status and resolution.
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">My Submitted Grievances</div>
+            <button class="btn btn-primary btn-sm" onclick="navigate('submit',document.querySelectorAll('#studentNav .nav-item')[2])">+ Submit New</button>
+          </div>
+          <div class="tbl-wrap"><table><thead><tr><th>ID</th><th>Category</th><th>Description</th><th>Status</th><th>Priority</th><th>Due</th><th>File</th><th>Remarks</th></tr></thead><tbody id="mine-tbody"></tbody></table></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h3>Grievance Details</h3>
+    <div id="modal-body"></div>
+    <div class="modal-actions" id="modal-actions"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="/app.js"></script>
+</body>
+</html>
